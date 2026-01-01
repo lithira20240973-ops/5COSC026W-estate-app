@@ -1,13 +1,121 @@
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import propertiesData from "../data/properties.json";
 
 export default function SearchPage() {
   const properties = propertiesData.properties;
+  const [type, setType] = useState("Any");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minBeds, setMinBeds] = useState("");
+  const filtered = useMemo(() => {
+  return properties.filter((p) => {
+    // Type
+    if (type !== "Any" && p.type !== type) return false;
+
+    // Price
+    const minP = minPrice === "" ? null : Number(minPrice);
+    const maxP = maxPrice === "" ? null : Number(maxPrice);
+    if (minP !== null && Number(p.price) < minP) return false;
+    if (maxP !== null && Number(p.price) > maxP) return false;
+
+    // Bedrooms
+    const beds = minBeds === "" ? null : Number(minBeds);
+    if (beds !== null && Number(p.bedrooms) < beds) return false;
+
+    return true;
+  });
+}, [properties, type, minPrice, maxPrice, minBeds]);
 
   return (
     <div style={{ padding: 24, fontFamily: "system-ui, Arial" }}>
       <h1>Estate Agent</h1>
-      <p>Total properties loaded: {properties.length}</p>
+      <p>Total properties found: {filtered.length}</p>
+
+    <div
+        style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: 12,
+            padding: 12,
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            background: "white",
+            marginTop: 12,
+            marginBottom: 16,
+        }}
+        >
+        {/* Type */}
+        <label>
+            Type
+            <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+            >
+            <option value="Any">Any</option>
+            <option value="House">House</option>
+            <option value="Flat">Flat</option>
+            </select>
+        </label>
+
+        {/* Min Price */}
+        <label>
+            Min Price
+            <input
+            type="number"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            placeholder="e.g. 250000"
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+            />
+        </label>
+
+        {/* Max Price */}
+        <label>
+            Max Price
+            <input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder="e.g. 750000"
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+            />
+        </label>
+
+        {/* Min Bedrooms */}
+        <label>
+            Min Bedrooms
+            <input
+            type="number"
+            value={minBeds}
+            onChange={(e) => setMinBeds(e.target.value)}
+            placeholder="e.g. 2"
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+            />
+        </label>
+
+        <button
+            type="button"
+            onClick={() => {
+            setType("Any");
+            setMinPrice("");
+            setMaxPrice("");
+            setMinBeds("");
+            }}
+            style={{
+            padding: 10,
+            borderRadius: 10,
+            border: "1px solid #ddd",
+            background: "#f6f6f6",
+            cursor: "pointer",
+            alignSelf: "end",
+            }}
+        >
+            Clear filters
+        </button>
+    </div>
+
 
       <div
         style={{

@@ -10,6 +10,36 @@ export default function SearchPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [minBeds, setMinBeds] = useState("");
   const [postcodeArea, setPostcodeArea] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  // Convert month name to number
+  const monthToNumber = (m) => {
+    const months = {
+      january: 1,
+      february: 2,
+      march: 3,
+      april: 4,
+      may: 5,
+      june: 6,
+      july: 7,
+      august: 8,
+      september: 9,
+      october: 10,
+      november: 11,
+      december: 12,
+    };
+    return months[String(m || "").toLowerCase()] || 0;
+  };
+
+  // Convert property added date to ISO (YYYY-MM-DD)
+  const propertyAddedAsISO = (p) => {
+    const y = Number(p?.added?.year);
+    const m = monthToNumber(p?.added?.month);
+    const d = Number(p?.added?.day);
+    if (!y || !m || !d) return "";
+    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  };
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -26,21 +56,38 @@ export default function SearchPage() {
       const beds = minBeds === "" ? null : Number(minBeds);
       if (beds !== null && Number(p.bedrooms) < beds) return false;
 
-      // Postcode area (e.g., BR5, NW1) - match start of postcode, case-insensitive
+      // Postcode Area
       const pc = postcodeArea.trim().toUpperCase();
       if (pc) {
         const loc = String(p.location || "").toUpperCase();
-
-        // Find a token like BR5 / NW1 / etc. in location
         const match = loc.match(/\b[A-Z]{1,2}\d[A-Z0-9]?\b/);
         const outward = match ? match[0] : "";
-
         if (!outward.startsWith(pc)) return false;
+      }
+
+      // Date Added (after / between)
+      const from = dateFrom || null;
+      const to = dateTo || null;
+
+      if (from || to) {
+        const addedISO = propertyAddedAsISO(p);
+        if (!addedISO) return false;
+        if (from && addedISO < from) return false;
+        if (to && addedISO > to) return false;
       }
 
       return true;
     });
-  }, [properties, type, minPrice, maxPrice, minBeds, postcodeArea]);
+  }, [
+    properties,
+    type,
+    minPrice,
+    maxPrice,
+    minBeds,
+    postcodeArea,
+    dateFrom,
+    dateTo,
+  ]);
 
   return (
     <div style={{ padding: 24, fontFamily: "system-ui, Arial" }}>
@@ -81,7 +128,6 @@ export default function SearchPage() {
             type="number"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            placeholder="e.g. 250000"
             style={{ width: "100%", padding: 8, marginTop: 6 }}
           />
         </label>
@@ -93,7 +139,6 @@ export default function SearchPage() {
             type="number"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            placeholder="e.g. 750000"
             style={{ width: "100%", padding: 8, marginTop: 6 }}
           />
         </label>
@@ -105,7 +150,6 @@ export default function SearchPage() {
             type="number"
             value={minBeds}
             onChange={(e) => setMinBeds(e.target.value)}
-            placeholder="e.g. 2"
             style={{ width: "100%", padding: 8, marginTop: 6 }}
           />
         </label>
@@ -122,6 +166,28 @@ export default function SearchPage() {
           />
         </label>
 
+        {/* Date From */}
+        <label>
+          Date From
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+          />
+        </label>
+
+        {/* Date To */}
+        <label>
+          Date To
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 6 }}
+          />
+        </label>
+
         <button
           type="button"
           onClick={() => {
@@ -130,6 +196,8 @@ export default function SearchPage() {
             setMaxPrice("");
             setMinBeds("");
             setPostcodeArea("");
+            setDateFrom("");
+            setDateTo("");
           }}
           style={{
             padding: 10,
@@ -156,7 +224,7 @@ export default function SearchPage() {
           <Link
             key={p.id}
             to={`/property/${p.id}`}
-            style={{ textDecoration: "none", color: "inherit", display: "block" }}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
             <div
               style={{

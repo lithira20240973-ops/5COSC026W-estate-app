@@ -1,35 +1,102 @@
 {
-	"properties": [
-        {
-            "id":"prop1",
-			"type":"House",
-            "bedrooms":3,
-			"price":750000,
-			"tenure":"Freehold",
-			"description":"Attractive three bedroom semi-detached family home situated within 0.5 miles of Petts Wood station with fast trains to London and within easy walking distance of local shops, schools, bus routes and National Trust woodland. The property comprises; two receptions, fitted 18'9 x 10'1 kitchen/breakfast room and conservatory. The property also benefits from having a utility room and cloakroom. To the first floor there are three bedrooms and a family bathroom with separate WC. Additional features include double glazing, gas central heating and a well presented interior...",
-			"location":"Petts Wood Road, Petts Wood, Orpington BR5",
-			"picture":"images/prop1pic1small.jpg",
-			"url":"properties/prop1.html",
-            "added": {
-                "month":"October",
-                "day":12,
-                "year":2022
-            }
-        },
-		{
-            "id":"prop2",
-			"type":"Flat",
-            "bedrooms":2,
-			"price":399995,
-			"tenure":"Freehold",
-			"description":"Presented in excellent decorative order throughout is this two double bedroom, two bathroom, garden flat. <br>The modern fitted kitchen is open plan to the living room which boasts solid wooden floors and includes integrated appliances including a dishwasher & a washing machine. This large open plan benefits from bi folding doors onto a secluded private courtyard garden. Both bedrooms are double sized, and the family bathroom boasts a matching three piece suite a shower attachment over the bath. There is also a separate wet room. There are walnut doors throughout and wiring for Sky TV/aerial points in the living room/kitchen and both bedrooms.<br>This apartment being only five years old, is still under a 10 year building guarantee...",
-			"location":"Crofton Road Orpington BR6",
-			"picture":"images/prop2pic1small.jpg",
-			"url":"properties/prop2.html",
-            "added": {
-                "month":"September",
-                "day":14,
-                "year":2022
-            }
-        }
-]}
+  "properties": [
+    {
+      "id": "prop1",
+      "type": "House",
+      "bedrooms": 3,
+      "price": 750000,
+      "tenure": "Freehold",
+      "description": "Attractive three bedroom semi-detached family home situated within 0.5 miles of Petts Wood station with fast trains to London and within easy walking distance of local shops, schools, bus routes and National Trust woodland. The property comprises; two receptions, fitted kitchen/breakfast room and conservatory. Additional features include double glazing, gas central heating and a well presented interior.",
+      "location": "Petts Wood Road, Petts Wood, Orpington BR5",
+      "picture": "images/prop1-1.jpg",
+      "images": ["images/prop1-1.jpg", "images/prop1-2.jpg", "images/prop1-3.jpg"],
+      "floorplan": "images/prop1-floorplan.jpg",
+      "url": "properties/prop1.html",
+      "added": { "month": "October", "day": 12, "year": 2022 }
+    },
+    {
+      "id": "prop2",
+      "type": "Flat",
+      "bedrooms": 2,
+      "price": 399995,
+      "tenure": "Leasehold",
+      "description": "Presented in excellent decorative order throughout is this two double bedroom, two bathroom, garden flat. The modern fitted kitchen is open plan to the living room with integrated appliances. Bi-folding doors open onto a secluded private courtyard garden.",
+      "location": "Crofton Road, Orpington BR6",
+      "picture": "images/prop2-1.jpg",
+      "images": ["images/prop2-1.jpg", "images/prop2-2.jpg"],
+      "floorplan": "images/prop2-floorplan.jpg",
+      "url": "properties/prop2.html",
+      "added": { "month": "September", "day": 14, "year": 2022 }
+    },
+    {
+      "id": "prop3",
+      "type": "House",
+      "bedrooms": 4,
+      "price": 925000,
+      "tenure": "Freehold",
+      "description": "Spacious four bedroom family home with a large open-plan kitchen/dining space, separate living room and a private rear garden. Convenient access to transport links, schools and local amenities.",
+      "location": "Farnborough Hill, Orpington BR6",
+      "picture": "images/prop3-1.jpg",
+      "images": ["images/prop3-1.jpg", "images/prop3-2.jpg", "images/prop3-3.jpg"],
+      "floorplan": "images/prop3-floorplan.jpg",
+      "url": "properties/prop3.html",
+      "added": { "month": "November", "day": 3, "year": 2022 }
+    },
+    {
+      "id": "prop4",
+      "type": "Flat",
+      "bedrooms": 1,
+      "price": 275000,
+      "tenure": "Leasehold",
+      "description": "Modern one bedroom apartment with bright living area, fitted kitchen and secure entry system. Ideal for first-time buyers or investors. Close to shops and public transport.",
+      "location": "High Street, Bromley BR1",
+      "picture": "images/prop4-1.jpg",
+      "images": ["images/prop4-1.jpg", "images/prop4-2.jpg"],
+      "floorplan": "images/prop4-floorplan.jpg",
+      "url": "properties/prop4.html",
+      "added": { "month": "August", "day": 22, "year": 2022 }
+    },
+    {
+      "id": "prop5",
+      "type": "House",
+      "bedrooms": 2,
+      "price": 510000,
+      "tenure": "Freehold",
+      "description": "Charming two bedroom terraced home with a refurbished kitchen, downstairs WC and a low-maintenance garden. Quiet residential street with easy commuting options.",
+      "location": "Queensway, Sidcup DA14",
+      "picture": "images/prop5-1.jpg",
+      "images": ["images/prop5-1.jpg", "images/prop5-2.jpg"],
+      "floorplan": "images/prop5-floorplan.jpg",
+      "url": "properties/prop5.html",
+      "added": { "month": "July", "day": 9, "year": 2022 }
+    },
+    {
+      "id": "prop6",
+      "type": "Flat",
+      "bedrooms": 3,
+      "price": 620000,
+      "tenure": "Leasehold",
+      "description": "Large three bedroom apartment with balcony, generous storage and open-plan living/kitchen area. Set within a well-maintained development with lift access.",
+      "location": "Station Road, Dartford DA1",
+      "picture": "images/prop6-1.jpg",
+      "images": ["images/prop6-1.jpg", "images/prop6-2.jpg", "images/prop6-3.jpg"],
+      "floorplan": "images/prop6-floorplan.jpg",
+      "url": "properties/prop6.html",
+      "added": { "month": "October", "day": 28, "year": 2022 }
+    },
+    {
+      "id": "prop7",
+      "type": "House",
+      "bedrooms": 5,
+      "price": 1250000,
+      "tenure": "Freehold",
+      "description": "Impressive five bedroom detached home with driveway parking, integral garage and landscaped garden. Multiple reception rooms and a spacious kitchen/diner suitable for entertaining.",
+      "location": "Oak Avenue, Chislehurst BR7",
+      "picture": "images/prop7-1.jpg",
+      "images": ["images/prop7-1.jpg", "images/prop7-2.jpg", "images/prop7-3.jpg"],
+      "floorplan": "images/prop7-floorplan.jpg",
+      "url": "properties/prop7.html",
+      "added": { "month": "December", "day": 2, "year": 2022 }
+    }
+  ]
+}

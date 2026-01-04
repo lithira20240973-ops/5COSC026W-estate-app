@@ -13,7 +13,7 @@ export default function SearchPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-    // ----- FAVOURITES (persisted) -----
+  // ----- FAVOURITES (persisted) -----
   const FAV_KEY = "favourites";
 
   const loadFavs = () => {
@@ -37,18 +37,14 @@ export default function SearchPage() {
 
   const addFavourite = (property) => {
     if (isFavourited(property.id)) return; // no duplicates
-    const next = [property, ...favourites];
-    saveFavs(next);
+    saveFavs([property, ...favourites]);
   };
 
   const removeFavourite = (id) => {
-    const next = favourites.filter((f) => f.id !== id);
-    saveFavs(next);
+    saveFavs(favourites.filter((f) => f.id !== id));
   };
 
-  const clearFavourites = () => {
-    saveFavs([]);
-  };
+  const clearFavourites = () => saveFavs([]);
 
   // ----- DRAG & DROP -----
   const onDragStartProperty = (e, property) => {
@@ -64,7 +60,7 @@ export default function SearchPage() {
   };
 
   const onDragOverFavourites = (e) => {
-    e.preventDefault(); // required to allow drop
+    e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
   };
 
@@ -98,20 +94,16 @@ export default function SearchPage() {
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
-      // Type
       if (type !== "Any" && p.type !== type) return false;
 
-      // Price
       const minP = minPrice === "" ? null : Number(minPrice);
       const maxP = maxPrice === "" ? null : Number(maxPrice);
       if (minP !== null && Number(p.price) < minP) return false;
       if (maxP !== null && Number(p.price) > maxP) return false;
 
-      // Bedrooms
       const beds = minBeds === "" ? null : Number(minBeds);
       if (beds !== null && Number(p.bedrooms) < beds) return false;
 
-      // Postcode Area
       const pc = postcodeArea.trim().toUpperCase();
       if (pc) {
         const loc = String(p.location || "").toUpperCase();
@@ -120,10 +112,8 @@ export default function SearchPage() {
         if (!outward.startsWith(pc)) return false;
       }
 
-      // Date Added (after / between)
       const from = dateFrom || null;
       const to = dateTo || null;
-
       if (from || to) {
         const addedISO = propertyAddedAsISO(p);
         if (!addedISO) return false;
@@ -133,224 +123,128 @@ export default function SearchPage() {
 
       return true;
     });
-  }, [
-    properties,
-    type,
-    minPrice,
-    maxPrice,
-    minBeds,
-    postcodeArea,
-    dateFrom,
-    dateTo,
-  ]);
+  }, [properties, type, minPrice, maxPrice, minBeds, postcodeArea, dateFrom, dateTo]);
 
   return (
-    <div style={{ padding: 24, fontFamily: "system-ui, Arial" }}>
-      <h1>Estate Agent</h1>
-      <p>Total properties found: {filtered.length}</p>
+    <div className="page">
+      {/* Top bar (unique look) */}
+      <div className="topbar">
+        <div className="brand">RentNest</div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 12,
-          padding: 12,
-          border: "1px solid #ddd",
-          borderRadius: 12,
-          background: "white",
-          marginTop: 12,
-          marginBottom: 16,
-        }}
-      >
-        {/* Type */}
-        <label>
-          Type
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          >
-            <option value="Any">Any</option>
-            <option value="House">House</option>
-            <option value="Flat">Flat</option>
-          </select>
-        </label>
-
-        {/* Min Price */}
-        <label>
-          Min Price
-          <input
-            type="number"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        {/* Max Price */}
-        <label>
-          Max Price
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        {/* Min Bedrooms */}
-        <label>
-          Min Bedrooms
-          <input
-            type="number"
-            value={minBeds}
-            onChange={(e) => setMinBeds(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        {/* Postcode Area */}
-        <label>
-          Postcode Area
-          <input
-            type="text"
-            value={postcodeArea}
-            onChange={(e) => setPostcodeArea(e.target.value)}
-            placeholder="e.g. BR5"
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        {/* Date From */}
-        <label>
-          Date From
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        {/* Date To */}
-        <label>
-          Date To
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            style={{ width: "100%", padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        <button
-          type="button"
-          onClick={() => {
-            setType("Any");
-            setMinPrice("");
-            setMaxPrice("");
-            setMinBeds("");
-            setPostcodeArea("");
-            setDateFrom("");
-            setDateTo("");
-          }}
-          style={{
-            padding: 10,
-            borderRadius: 10,
-            border: "1px solid #ddd",
-            background: "#f6f6f6",
-            cursor: "pointer",
-            alignSelf: "end",
-          }}
-        >
-          Clear filters
-        </button>
+        <div className="topbarRight">
+          <div className="pill">Results: {filtered.length}</div>
+          <div className="pill">Favourites: {favourites.length}</div>
+        </div>
       </div>
 
-      <div
-        className="layout"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
-        {/* RESULTS */}
-        <div
-          className="resultsGrid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: 16,
-            marginTop: 16,
-          }}
-        >
+      {/* Filters panel */}
+      <div className="panel panelPad">
+        <div className="headerRow">
+          <div>
+            <h1 className="title">Find your next home</h1>
+            <p className="subText">Filter by type, price, bedrooms, postcode and date added.</p>
+          </div>
+
+          <button
+            className="btn btnPrimary"
+            type="button"
+            onClick={() => {
+              setType("Any");
+              setMinPrice("");
+              setMaxPrice("");
+              setMinBeds("");
+              setPostcodeArea("");
+              setDateFrom("");
+              setDateTo("");
+            }}
+          >
+            Reset filters
+          </button>
+        </div>
+
+        <div className="filters">
+          <div className="field col3">
+            <div className="label">Property type</div>
+            <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="Any">Any</option>
+              <option value="House">House</option>
+              <option value="Flat">Flat</option>
+            </select>
+          </div>
+
+          <div className="field col3">
+            <div className="label">Postcode area</div>
+            <input
+              className="input"
+              type="text"
+              value={postcodeArea}
+              onChange={(e) => setPostcodeArea(e.target.value)}
+              placeholder="e.g. BR5, NW1"
+            />
+          </div>
+
+          <div className="field col3">
+            <div className="label">Min price</div>
+            <input className="input" type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="e.g. 250000" />
+          </div>
+
+          <div className="field col3">
+            <div className="label">Max price</div>
+            <input className="input" type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="e.g. 750000" />
+          </div>
+
+          <div className="field col3">
+            <div className="label">Min beds</div>
+            <input className="input" type="number" value={minBeds} onChange={(e) => setMinBeds(e.target.value)} placeholder="e.g. 2" />
+          </div>
+
+          <div className="field col3">
+            <div className="label">Date from</div>
+            <input className="input" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+          </div>
+
+          <div className="field col3">
+            <div className="label">Date to</div>
+            <input className="input" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main */}
+      <div className="mainGrid">
+        {/* Cards */}
+        <div className="cardsGrid">
           {filtered.map((p) => (
             <div
-                key={p.id}
-                style={{ position: "relative" }}
-                draggable
-                onDragStart={(e) => onDragStartProperty(e, p)}
-              >
-              <Link
-                to={`/property/${p.id}`}
-                style={{ textDecoration: "none", color: "inherit", display: "block" }}
-              >
-                <div
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 12,
-                    padding: 12,
-                    background: "white",
-                    cursor: "pointer",
-                  }}
-                >
+              key={p.id}
+              className="cardWrap"
+              draggable
+              onDragStart={(e) => onDragStartProperty(e, p)}
+            >
+              <Link to={`/property/${p.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <div className="card cardHover">
                   <img
+                    className="cardImg"
                     src={"/" + (p.picture || "images/placeholder.jpg")}
                     alt={p.type}
-                    style={{
-                      width: "100%",
-                      height: 160,
-                      objectFit: "cover",
-                      borderRadius: 10,
-                    }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholder.jpg";
-                    }}
+                    onError={(e) => (e.currentTarget.src = "/images/placeholder.jpg")}
                   />
-
-                  <h3 style={{ margin: "12px 0 6px" }}>
-                    {p.type} • {p.bedrooms} bed
-                  </h3>
-
-                  <div style={{ fontWeight: 700 }}>
-                    £{Number(p.price).toLocaleString()}
-                  </div>
-
-                  <div style={{ marginTop: 6, color: "#444" }}>{p.location}</div>
-
-                  <div style={{ marginTop: 10, fontSize: 13, color: "#666" }}>
-                    Added: {p.added?.day} {p.added?.month} {p.added?.year}
+                  <div className="cardBody">
+                    <div className="cardTitle">{p.type} • {p.bedrooms} bed</div>
+                    <div className="price">£{Number(p.price).toLocaleString()}</div>
+                    <div className="muted">{p.location}</div>
+                    <div className="muted small">
+                      Added: {p.added?.day} {p.added?.month} {p.added?.year}
+                    </div>
                   </div>
                 </div>
               </Link>
 
               <button
                 type="button"
+                className={`favBtn ${isFavourited(p.id) ? "favBtnSaved" : ""}`}
                 onClick={() => addFavourite(p)}
                 disabled={isFavourited(p.id)}
-                style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  padding: "8px 10px",
-                  borderRadius: 10,
-                  border: "1px solid #ddd",
-                  background: isFavourited(p.id) ? "#eaeaea" : "white",
-                  cursor: isFavourited(p.id) ? "not-allowed" : "pointer",
-                  fontWeight: 600,
-                }}
                 title={isFavourited(p.id) ? "Already in favourites" : "Add to favourites"}
               >
                 {isFavourited(p.id) ? "★ Saved" : "☆ Favourite"}
@@ -359,102 +253,41 @@ export default function SearchPage() {
           ))}
         </div>
 
-        {/* FAVOURITES */}
-        <div
-          className="favsPanel"
-          onDrop={onDropToFavourites}
-          onDragOver={onDragOverFavourites}
-          style={{
-            marginTop: 16,
-            border: "1px solid #ddd",
-            borderRadius: 12,
-            padding: 12,
-            background: "white",
-            position: "sticky",
-            top: 16,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+        {/* Favourites */}
+        <div className="panel panelPad sticky" onDrop={onDropToFavourites} onDragOver={onDragOverFavourites}>
+          <div className="favHeader">
             <h3 style={{ margin: 0 }}>Favourites ({favourites.length})</h3>
-            <button
-              type="button"
-              onClick={clearFavourites}
-              disabled={favourites.length === 0}
-              style={{
-                padding: "8px 10px",
-                borderRadius: 10,
-                border: "1px solid #ddd",
-                background: favourites.length === 0 ? "#f3f3f3" : "#fff",
-                cursor: favourites.length === 0 ? "not-allowed" : "pointer",
-                fontWeight: 600,
-              }}
-            >
+            <button className="btn" type="button" onClick={clearFavourites} disabled={favourites.length === 0}>
               Clear
             </button>
           </div>
 
-          <p style={{ marginTop: 8, color: "#666", fontSize: 13 }}>
-            Drag a property card and drop it here to add to favourites.
-          </p>
+          <div className="dropZone">
+            Drag a property card and drop it here to add it.
+          </div>
 
           {favourites.length === 0 ? (
-            <p style={{ color: "#666", marginTop: 10 }}>
-              No favourites yet. Click ☆ Favourite on a property.
+            <p className="muted" style={{ marginTop: 10 }}>
+              No favourites yet. Click ☆ Favourite or drag a card here.
             </p>
           ) : (
-            <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+            <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
               {favourites.map((f) => (
-                <div
-                  key={f.id}
-                  style={{
-                    border: "1px solid #eee",
-                    borderRadius: 12,
-                    padding: 10,
-                    display: "grid",
-                    gridTemplateColumns: "70px 1fr",
-                    gap: 10,
-                    alignItems: "center",
-                  }}
-                >
+                <div key={f.id} className="favItem">
                   <img
+                    className="favThumb"
                     src={"/" + (f.picture || "images/placeholder.jpg")}
                     alt={f.type}
-                    style={{
-                      width: 70,
-                      height: 54,
-                      objectFit: "cover",
-                      borderRadius: 10,
-                    }}
-                    onError={(e) => {
-                      e.currentTarget.src = "/images/placeholder.jpg";
-                    }}
+                    onError={(e) => (e.currentTarget.src = "/images/placeholder.jpg")}
                   />
 
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>
-                      {f.type} • {f.bedrooms} bed
-                    </div>
-                    <div style={{ fontSize: 13, color: "#444" }}>
-                      £{Number(f.price).toLocaleString()}
-                    </div>
+                    <div style={{ fontWeight: 900 }}>{f.type} • {f.bedrooms} bed</div>
+                    <div className="muted">£{Number(f.price).toLocaleString()}</div>
 
-                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                      <Link to={`/property/${f.id}`} style={{ fontWeight: 600 }}>
-                        View
-                      </Link>
-
-                      <button
-                        type="button"
-                        onClick={() => removeFavourite(f.id)}
-                        style={{
-                          padding: "6px 10px",
-                          borderRadius: 10,
-                          border: "1px solid #ddd",
-                          background: "white",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
+                    <div style={{ display: "flex", gap: 10, marginTop: 8, alignItems: "center" }}>
+                      <Link className="link" to={`/property/${f.id}`}>View</Link>
+                      <button className="btn" type="button" onClick={() => removeFavourite(f.id)}>
                         Remove
                       </button>
                     </div>

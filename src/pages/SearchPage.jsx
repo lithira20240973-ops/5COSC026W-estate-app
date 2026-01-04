@@ -50,6 +50,24 @@ export default function SearchPage() {
     saveFavs([]);
   };
 
+  // ----- DRAG & DROP -----
+  const onDragStartProperty = (e, property) => {
+    e.dataTransfer.setData("text/plain", property.id);
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
+  const onDropToFavourites = (e) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    const prop = properties.find((p) => p.id === id);
+    if (prop) addFavourite(prop);
+  };
+
+  const onDragOverFavourites = (e) => {
+    e.preventDefault(); // required to allow drop
+    e.dataTransfer.dropEffect = "copy";
+  };
+
   // Convert month name to number
   const monthToNumber = (m) => {
     const months = {
@@ -267,7 +285,12 @@ export default function SearchPage() {
           }}
         >
           {filtered.map((p) => (
-            <div key={p.id} style={{ position: "relative" }}>
+            <div
+                key={p.id}
+                style={{ position: "relative" }}
+                draggable
+                onDragStart={(e) => onDragStartProperty(e, p)}
+              >
               <Link
                 to={`/property/${p.id}`}
                 style={{ textDecoration: "none", color: "inherit", display: "block" }}
@@ -336,6 +359,8 @@ export default function SearchPage() {
 
         {/* FAVOURITES */}
         <div
+          onDrop={onDropToFavourites}
+          onDragOver={onDragOverFavourites}
           style={{
             marginTop: 16,
             border: "1px solid #ddd",
@@ -364,6 +389,10 @@ export default function SearchPage() {
               Clear
             </button>
           </div>
+
+          <p style={{ marginTop: 8, color: "#666", fontSize: 13 }}>
+            Drag a property card and drop it here to add to favourites.
+          </p>
 
           {favourites.length === 0 ? (
             <p style={{ color: "#666", marginTop: 10 }}>

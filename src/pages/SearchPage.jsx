@@ -268,6 +268,7 @@ export default function SearchPage() {
       </div>
 
       <div
+        className="layout"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 320px",
@@ -277,6 +278,7 @@ export default function SearchPage() {
       >
         {/* RESULTS */}
         <div
+          className="resultsGrid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
@@ -359,6 +361,7 @@ export default function SearchPage() {
 
         {/* FAVOURITES */}
         <div
+          className="favsPanel"
           onDrop={onDropToFavourites}
           onDragOver={onDragOverFavourites}
           style={{

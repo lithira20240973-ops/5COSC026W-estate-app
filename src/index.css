@@ -66,3 +66,20 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+/* Responsive layout for SearchPage */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr !important; /* stack results + favourites */
+  }
+
+  .favsPanel {
+    position: static !important; /* disable sticky on small screens */
+    top: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .resultsGrid {
+    grid-template-columns: 1fr !important; /* 1 card per row on phone */
+  }
+}

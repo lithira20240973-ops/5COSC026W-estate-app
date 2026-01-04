@@ -13,6 +13,43 @@ export default function SearchPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+    // ----- FAVOURITES (persisted) -----
+  const FAV_KEY = "favourites";
+
+  const loadFavs = () => {
+    try {
+      const raw = localStorage.getItem(FAV_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const [favourites, setFavourites] = useState(loadFavs);
+
+  const saveFavs = (next) => {
+    setFavourites(next);
+    localStorage.setItem(FAV_KEY, JSON.stringify(next));
+  };
+
+  const isFavourited = (id) => favourites.some((f) => f.id === id);
+
+  const addFavourite = (property) => {
+    if (isFavourited(property.id)) return; // no duplicates
+    const next = [property, ...favourites];
+    saveFavs(next);
+  };
+
+  const removeFavourite = (id) => {
+    const next = favourites.filter((f) => f.id !== id);
+    saveFavs(next);
+  };
+
+  const clearFavourites = () => {
+    saveFavs([]);
+  };
+
   // Convert month name to number
   const monthToNumber = (m) => {
     const months = {
@@ -215,56 +252,186 @@ export default function SearchPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gridTemplateColumns: "1fr 320px",
           gap: 16,
-          marginTop: 16,
+          alignItems: "start",
         }}
       >
-        {filtered.map((p) => (
-          <Link
-            key={p.id}
-            to={`/property/${p.id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <div
+        {/* RESULTS */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: 16,
+            marginTop: 16,
+          }}
+        >
+          {filtered.map((p) => (
+            <div key={p.id} style={{ position: "relative" }}>
+              <Link
+                to={`/property/${p.id}`}
+                style={{ textDecoration: "none", color: "inherit", display: "block" }}
+              >
+                <div
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 12,
+                    padding: 12,
+                    background: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  <img
+                    src={"/" + (p.picture || "images/placeholder.jpg")}
+                    alt={p.type}
+                    style={{
+                      width: "100%",
+                      height: 160,
+                      objectFit: "cover",
+                      borderRadius: 10,
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholder.jpg";
+                    }}
+                  />
+
+                  <h3 style={{ margin: "12px 0 6px" }}>
+                    {p.type} • {p.bedrooms} bed
+                  </h3>
+
+                  <div style={{ fontWeight: 700 }}>
+                    £{Number(p.price).toLocaleString()}
+                  </div>
+
+                  <div style={{ marginTop: 6, color: "#444" }}>{p.location}</div>
+
+                  <div style={{ marginTop: 10, fontSize: 13, color: "#666" }}>
+                    Added: {p.added?.day} {p.added?.month} {p.added?.year}
+                  </div>
+                </div>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => addFavourite(p)}
+                disabled={isFavourited(p.id)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  padding: "8px 10px",
+                  borderRadius: 10,
+                  border: "1px solid #ddd",
+                  background: isFavourited(p.id) ? "#eaeaea" : "white",
+                  cursor: isFavourited(p.id) ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                }}
+                title={isFavourited(p.id) ? "Already in favourites" : "Add to favourites"}
+              >
+                {isFavourited(p.id) ? "★ Saved" : "☆ Favourite"}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* FAVOURITES */}
+        <div
+          style={{
+            marginTop: 16,
+            border: "1px solid #ddd",
+            borderRadius: 12,
+            padding: 12,
+            background: "white",
+            position: "sticky",
+            top: 16,
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+            <h3 style={{ margin: 0 }}>Favourites ({favourites.length})</h3>
+            <button
+              type="button"
+              onClick={clearFavourites}
+              disabled={favourites.length === 0}
               style={{
+                padding: "8px 10px",
+                borderRadius: 10,
                 border: "1px solid #ddd",
-                borderRadius: 12,
-                padding: 12,
-                background: "white",
-                cursor: "pointer",
+                background: favourites.length === 0 ? "#f3f3f3" : "#fff",
+                cursor: favourites.length === 0 ? "not-allowed" : "pointer",
+                fontWeight: 600,
               }}
             >
-              <img
-                src={"/" + (p.picture || "images/placeholder.jpg")}
-                alt={p.type}
-                style={{
-                  width: "100%",
-                  height: 160,
-                  objectFit: "cover",
-                  borderRadius: 10,
-                }}
-                onError={(e) => {
-                  e.currentTarget.src = "/images/placeholder.jpg";
-                }}
-              />
+              Clear
+            </button>
+          </div>
 
-              <h3 style={{ margin: "12px 0 6px" }}>
-                {p.type} • {p.bedrooms} bed
-              </h3>
+          {favourites.length === 0 ? (
+            <p style={{ color: "#666", marginTop: 10 }}>
+              No favourites yet. Click ☆ Favourite on a property.
+            </p>
+          ) : (
+            <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+              {favourites.map((f) => (
+                <div
+                  key={f.id}
+                  style={{
+                    border: "1px solid #eee",
+                    borderRadius: 12,
+                    padding: 10,
+                    display: "grid",
+                    gridTemplateColumns: "70px 1fr",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={"/" + (f.picture || "images/placeholder.jpg")}
+                    alt={f.type}
+                    style={{
+                      width: 70,
+                      height: 54,
+                      objectFit: "cover",
+                      borderRadius: 10,
+                    }}
+                    onError={(e) => {
+                      e.currentTarget.src = "/images/placeholder.jpg";
+                    }}
+                  />
 
-              <div style={{ fontWeight: 700 }}>
-                £{Number(p.price).toLocaleString()}
-              </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>
+                      {f.type} • {f.bedrooms} bed
+                    </div>
+                    <div style={{ fontSize: 13, color: "#444" }}>
+                      £{Number(f.price).toLocaleString()}
+                    </div>
 
-              <div style={{ marginTop: 6, color: "#444" }}>{p.location}</div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <Link to={`/property/${f.id}`} style={{ fontWeight: 600 }}>
+                        View
+                      </Link>
 
-              <div style={{ marginTop: 10, fontSize: 13, color: "#666" }}>
-                Added: {p.added?.day} {p.added?.month} {p.added?.year}
-              </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFavourite(f.id)}
+                        style={{
+                          padding: "6px 10px",
+                          borderRadius: 10,
+                          border: "1px solid #ddd",
+                          background: "white",
+                          cursor: "pointer",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </Link>
-        ))}
+          )}
+        </div>
       </div>
     </div>
   );

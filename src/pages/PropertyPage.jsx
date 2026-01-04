@@ -158,7 +158,6 @@ export default function PropertyPage() {
                   }}
                 />
                 <p className="muted small" style={{ marginBottom: 0 }}>
-                  Tip: Add <code>"floorplan": "images/floorplan1.jpg"</code> per property.
                 </p>
               </>
             )}

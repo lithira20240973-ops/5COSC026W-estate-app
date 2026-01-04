@@ -9,7 +9,14 @@
       "description": "Attractive three bedroom semi-detached family home situated within 0.5 miles of Petts Wood station with fast trains to London and within easy walking distance of local shops, schools, bus routes and National Trust woodland. The property comprises; two receptions, fitted kitchen/breakfast room and conservatory. Additional features include double glazing, gas central heating and a well presented interior.",
       "location": "Petts Wood Road, Petts Wood, Orpington BR5",
       "picture": "images/prop1-1.jpg",
-      "images": ["images/prop1-1.jpg", "images/prop1-2.jpg", "images/prop1-3.jpg"],
+      "images": [
+        "images/prop1-1.jpg",
+        "images/prop1-2.jpg",
+        "images/prop1-3.jpg",
+        "images/prop1-4.jpg",
+        "images/prop1-5.jpg",
+        "images/prop1-6.jpg"
+      ],
       "floorplan": "images/prop1-floorplan.jpg",
       "url": "properties/prop1.html",
       "added": { "month": "October", "day": 12, "year": 2022 }
@@ -23,7 +30,14 @@
       "description": "Presented in excellent decorative order throughout is this two double bedroom, two bathroom, garden flat. The modern fitted kitchen is open plan to the living room with integrated appliances. Bi-folding doors open onto a secluded private courtyard garden.",
       "location": "Crofton Road, Orpington BR6",
       "picture": "images/prop2-1.jpg",
-      "images": ["images/prop2-1.jpg", "images/prop2-2.jpg"],
+      "images": [
+        "images/prop2-1.jpg",
+        "images/prop2-2.jpg",
+        "images/prop2-3.jpg",
+        "images/prop2-4.jpg",
+        "images/prop2-5.jpg",
+        "images/prop2-6.jpg"
+      ],
       "floorplan": "images/prop2-floorplan.jpg",
       "url": "properties/prop2.html",
       "added": { "month": "September", "day": 14, "year": 2022 }
@@ -37,7 +51,14 @@
       "description": "Spacious four bedroom family home with a large open-plan kitchen/dining space, separate living room and a private rear garden. Convenient access to transport links, schools and local amenities.",
       "location": "Farnborough Hill, Orpington BR6",
       "picture": "images/prop3-1.jpg",
-      "images": ["images/prop3-1.jpg", "images/prop3-2.jpg", "images/prop3-3.jpg"],
+      "images": [
+        "images/prop3-1.jpg",
+        "images/prop3-2.jpg",
+        "images/prop3-3.jpg",
+        "images/prop3-4.jpg",
+        "images/prop3-5.jpg",
+        "images/prop3-6.jpg"
+      ],
       "floorplan": "images/prop3-floorplan.jpg",
       "url": "properties/prop3.html",
       "added": { "month": "November", "day": 3, "year": 2022 }
@@ -51,7 +72,14 @@
       "description": "Modern one bedroom apartment with bright living area, fitted kitchen and secure entry system. Ideal for first-time buyers or investors. Close to shops and public transport.",
       "location": "High Street, Bromley BR1",
       "picture": "images/prop4-1.jpg",
-      "images": ["images/prop4-1.jpg", "images/prop4-2.jpg"],
+      "images": [
+        "images/prop4-1.jpg",
+        "images/prop4-2.jpg",
+        "images/prop4-3.jpg",
+        "images/prop4-4.jpg",
+        "images/prop4-5.jpg",
+        "images/prop4-6.jpg"
+      ],
       "floorplan": "images/prop4-floorplan.jpg",
       "url": "properties/prop4.html",
       "added": { "month": "August", "day": 22, "year": 2022 }
@@ -65,7 +93,14 @@
       "description": "Charming two bedroom terraced home with a refurbished kitchen, downstairs WC and a low-maintenance garden. Quiet residential street with easy commuting options.",
       "location": "Queensway, Sidcup DA14",
       "picture": "images/prop5-1.jpg",
-      "images": ["images/prop5-1.jpg", "images/prop5-2.jpg"],
+      "images": [
+        "images/prop5-1.jpg",
+        "images/prop5-2.jpg",
+        "images/prop5-3.jpg",
+        "images/prop5-4.jpg",
+        "images/prop5-5.jpg",
+        "images/prop5-6.jpg"
+      ],
       "floorplan": "images/prop5-floorplan.jpg",
       "url": "properties/prop5.html",
       "added": { "month": "July", "day": 9, "year": 2022 }
@@ -79,7 +114,14 @@
       "description": "Large three bedroom apartment with balcony, generous storage and open-plan living/kitchen area. Set within a well-maintained development with lift access.",
       "location": "Station Road, Dartford DA1",
       "picture": "images/prop6-1.jpg",
-      "images": ["images/prop6-1.jpg", "images/prop6-2.jpg", "images/prop6-3.jpg"],
+      "images": [
+        "images/prop6-1.jpg",
+        "images/prop6-2.jpg",
+        "images/prop6-3.jpg",
+        "images/prop6-4.jpg",
+        "images/prop6-5.jpg",
+        "images/prop6-6.jpg"
+      ],
       "floorplan": "images/prop6-floorplan.jpg",
       "url": "properties/prop6.html",
       "added": { "month": "October", "day": 28, "year": 2022 }
@@ -93,7 +135,14 @@
       "description": "Impressive five bedroom detached home with driveway parking, integral garage and landscaped garden. Multiple reception rooms and a spacious kitchen/diner suitable for entertaining.",
       "location": "Oak Avenue, Chislehurst BR7",
       "picture": "images/prop7-1.jpg",
-      "images": ["images/prop7-1.jpg", "images/prop7-2.jpg", "images/prop7-3.jpg"],
+      "images": [
+        "images/prop7-1.jpg",
+        "images/prop7-2.jpg",
+        "images/prop7-3.jpg",
+        "images/prop7-4.jpg",
+        "images/prop7-5.jpg",
+        "images/prop7-6.jpg"
+      ],
       "floorplan": "images/prop7-floorplan.jpg",
       "url": "properties/prop7.html",
       "added": { "month": "December", "day": 2, "year": 2022 }

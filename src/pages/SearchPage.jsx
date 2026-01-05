@@ -5,21 +5,7 @@ import propertiesData from "../data/properties.json";
 export default function SearchPage() {
   const properties = propertiesData.properties;
 
-  // ---------------------------
-  // INPUT STATE (user typing)
-  // ---------------------------
-  const [typeInput, setTypeInput] = useState("Any");
-  const [minPriceInput, setMinPriceInput] = useState("");
-  const [maxPriceInput, setMaxPriceInput] = useState("");
-  const [minBedsInput, setMinBedsInput] = useState("");
-  const [postcodeAreaInput, setPostcodeAreaInput] = useState("");
-  const [dateFromInput, setDateFromInput] = useState("");
-  const [dateToInput, setDateToInput] = useState("");
-
-  // ---------------------------
-  // APPLIED STATE (used for filtering)
-  // (Apply Filters button updates these)
-  // ---------------------------
+  // PENDING (what user is typing/selecting)
   const [type, setType] = useState("Any");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -28,25 +14,30 @@ export default function SearchPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  // APPLIED (what filtering actually uses)
+  const [appliedFilters, setAppliedFilters] = useState({
+    type: "Any",
+    minPrice: "",
+    maxPrice: "",
+    minBeds: "",
+    postcodeArea: "",
+    dateFrom: "",
+    dateTo: "",
+  });
+
   const applyFilters = () => {
-    setType(typeInput);
-    setMinPrice(minPriceInput);
-    setMaxPrice(maxPriceInput);
-    setMinBeds(minBedsInput);
-    setPostcodeArea(postcodeAreaInput);
-    setDateFrom(dateFromInput);
-    setDateTo(dateToInput);
+    setAppliedFilters({
+      type,
+      minPrice,
+      maxPrice,
+      minBeds,
+      postcodeArea,
+      dateFrom,
+      dateTo,
+    });
   };
 
   const resetFilters = () => {
-    setTypeInput("Any");
-    setMinPriceInput("");
-    setMaxPriceInput("");
-    setMinBedsInput("");
-    setPostcodeAreaInput("");
-    setDateFromInput("");
-    setDateToInput("");
-
     setType("Any");
     setMinPrice("");
     setMaxPrice("");
@@ -54,6 +45,16 @@ export default function SearchPage() {
     setPostcodeArea("");
     setDateFrom("");
     setDateTo("");
+
+    setAppliedFilters({
+      type: "Any",
+      minPrice: "",
+      maxPrice: "",
+      minBeds: "",
+      postcodeArea: "",
+      dateFrom: "",
+      dateTo: "",
+    });
   };
 
   // ----- FAVOURITES (persisted) -----
@@ -76,51 +77,35 @@ export default function SearchPage() {
     localStorage.setItem(FAV_KEY, JSON.stringify(next));
   };
 
-  const isFavourited = (id) => favourites.some((f) => String(f.id) === String(id));
+  const isFavourited = (id) => favourites.some((f) => f.id === id);
 
   const addFavourite = (property) => {
-    if (isFavourited(property.id)) return; // no duplicates
+    if (isFavourited(property.id)) return;
     saveFavs([property, ...favourites]);
   };
 
   const removeFavourite = (id) => {
-    saveFavs(favourites.filter((f) => String(f.id) !== String(id)));
+    saveFavs(favourites.filter((f) => f.id !== id));
   };
 
   const clearFavourites = () => saveFavs([]);
 
-  // ----- DRAG & DROP (add + remove) -----
+  // ----- DRAG & DROP (ADD to favourites) -----
   const onDragStartProperty = (e, property) => {
-    e.dataTransfer.setData("text/plain", `property:${property.id}`);
+    e.dataTransfer.setData("text/plain", property.id);
     e.dataTransfer.effectAllowed = "copy";
-  };
-
-  const onDragStartFavourite = (e, fav) => {
-    e.dataTransfer.setData("text/plain", `fav:${fav.id}`);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const onDragOver = (e) => {
-    e.preventDefault();
   };
 
   const onDropToFavourites = (e) => {
     e.preventDefault();
-    const payload = e.dataTransfer.getData("text/plain");
-    if (!payload.startsWith("property:")) return;
-
-    const id = payload.replace("property:", "");
-    const prop = properties.find((p) => String(p.id) === String(id));
+    const id = e.dataTransfer.getData("text/plain");
+    const prop = properties.find((p) => p.id === id);
     if (prop) addFavourite(prop);
   };
 
-  const onDropToRemove = (e) => {
+  const onDragOverFavourites = (e) => {
     e.preventDefault();
-    const payload = e.dataTransfer.getData("text/plain");
-    if (!payload.startsWith("fav:")) return;
-
-    const id = payload.replace("fav:", "");
-    removeFavourite(id);
+    e.dataTransfer.dropEffect = "copy";
   };
 
   // Convert month name to number
@@ -151,19 +136,34 @@ export default function SearchPage() {
     return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   };
 
+  //  FILTERING USES APPLIED FILTERS (not pending)
   const filtered = useMemo(() => {
-    return properties.filter((p) => {
-      if (type !== "Any" && p.type !== type) return false;
+    const {
+      type: aType,
+      minPrice: aMinPrice,
+      maxPrice: aMaxPrice,
+      minBeds: aMinBeds,
+      postcodeArea: aPostcodeArea,
+      dateFrom: aDateFrom,
+      dateTo: aDateTo,
+    } = appliedFilters;
 
-      const minP = minPrice === "" ? null : Number(minPrice);
-      const maxP = maxPrice === "" ? null : Number(maxPrice);
+    return properties.filter((p) => {
+      // Type
+      if (aType !== "Any" && p.type !== aType) return false;
+
+      // Price
+      const minP = aMinPrice === "" ? null : Number(aMinPrice);
+      const maxP = aMaxPrice === "" ? null : Number(aMaxPrice);
       if (minP !== null && Number(p.price) < minP) return false;
       if (maxP !== null && Number(p.price) > maxP) return false;
 
-      const beds = minBeds === "" ? null : Number(minBeds);
+      // Bedrooms
+      const beds = aMinBeds === "" ? null : Number(aMinBeds);
       if (beds !== null && Number(p.bedrooms) < beds) return false;
 
-      const pc = postcodeArea.trim().toUpperCase();
+      // Postcode area
+      const pc = aPostcodeArea.trim().toUpperCase();
       if (pc) {
         const loc = String(p.location || "").toUpperCase();
         const match = loc.match(/\b[A-Z]{1,2}\d[A-Z0-9]?\b/);
@@ -171,8 +171,10 @@ export default function SearchPage() {
         if (!outward.startsWith(pc)) return false;
       }
 
-      const from = dateFrom || null;
-      const to = dateTo || null;
+      // Date range
+      const from = aDateFrom || null;
+      const to = aDateTo || null;
+
       if (from || to) {
         const addedISO = propertyAddedAsISO(p);
         if (!addedISO) return false;
@@ -182,28 +184,30 @@ export default function SearchPage() {
 
       return true;
     });
-  }, [properties, type, minPrice, maxPrice, minBeds, postcodeArea, dateFrom, dateTo]);
+  }, [properties, appliedFilters]);
 
   return (
     <div className="page">
       {/* Top bar */}
       <div className="topbar">
-        <div className="brand">SkyNest Rentals</div>
+        <div className="brand">RentNest</div>
+
         <div className="topbarRight">
           <div className="pill">Results: {filtered.length}</div>
           <div className="pill">Favourites: {favourites.length}</div>
         </div>
       </div>
 
-      {/* HERO / Heading (separate nicer section) */}
+      {/* HERO CARD (new look for heading area) */}
       <div className="heroCard">
         <div>
           <h1 className="heroTitle">Find your next home</h1>
           <p className="heroSub">
-            Use filters then press <strong>Apply Filters</strong>. Drag properties into favourites, and drag favourites
-            into the remove box to delete.
+            Set your filters, then press <strong>Apply Filters</strong>. You can
+            drag properties into favourites.
           </p>
         </div>
+
         <div className="heroActions">
           <button className="btn btnPrimary" type="button" onClick={applyFilters}>
             Apply Filters
@@ -217,67 +221,109 @@ export default function SearchPage() {
       {/* Filters panel */}
       <div className="panel panelPad">
         <div className="filters">
+          {/* Property type */}
           <div className="field col3">
-            <div className="label">Property type</div>
-            <select className="select" value={typeInput} onChange={(e) => setTypeInput(e.target.value)}>
+            <label className="label" htmlFor="typeSelect">
+              Property type
+            </label>
+            <select
+              id="typeSelect"
+              className="select"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            >
               <option value="Any">Any</option>
               <option value="House">House</option>
               <option value="Flat">Flat</option>
             </select>
           </div>
 
+          {/* Postcode area */}
           <div className="field col3">
-            <div className="label">Postcode area</div>
+            <label className="label" htmlFor="postcodeInput">
+              Postcode area
+            </label>
             <input
+              id="postcodeInput"
               className="input"
               type="text"
-              value={postcodeAreaInput}
-              onChange={(e) => setPostcodeAreaInput(e.target.value)}
+              value={postcodeArea}
+              onChange={(e) => setPostcodeArea(e.target.value)}
               placeholder="e.g. BR5, NW1"
             />
           </div>
 
+          {/* Min price */}
           <div className="field col3">
-            <div className="label">Min price</div>
+            <label className="label" htmlFor="minPriceInput">
+              Min price
+            </label>
             <input
+              id="minPriceInput"
               className="input"
               type="number"
-              value={minPriceInput}
-              onChange={(e) => setMinPriceInput(e.target.value)}
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
               placeholder="e.g. 250000"
             />
           </div>
 
+          {/* Max price */}
           <div className="field col3">
-            <div className="label">Max price</div>
+            <label className="label" htmlFor="maxPriceInput">
+              Max price
+            </label>
             <input
+              id="maxPriceInput"
               className="input"
               type="number"
-              value={maxPriceInput}
-              onChange={(e) => setMaxPriceInput(e.target.value)}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
               placeholder="e.g. 750000"
             />
           </div>
 
+          {/* Min beds */}
           <div className="field col3">
-            <div className="label">Min beds</div>
+            <label className="label" htmlFor="minBedsInput">
+              Min beds
+            </label>
             <input
+              id="minBedsInput"
               className="input"
               type="number"
-              value={minBedsInput}
-              onChange={(e) => setMinBedsInput(e.target.value)}
+              value={minBeds}
+              onChange={(e) => setMinBeds(e.target.value)}
               placeholder="e.g. 2"
             />
           </div>
 
+          {/* Date from */}
           <div className="field col3">
-            <div className="label">Date from</div>
-            <input className="input" type="date" value={dateFromInput} onChange={(e) => setDateFromInput(e.target.value)} />
+            <label className="label" htmlFor="dateFromInput">
+              Date from
+            </label>
+            <input
+              id="dateFromInput"
+              className="input"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
           </div>
 
+          {/* Date to */}
           <div className="field col3">
-            <div className="label">Date to</div>
-            <input className="input" type="date" value={dateToInput} onChange={(e) => setDateToInput(e.target.value)} />
+            <label className="label" htmlFor="dateToInput">
+              Date to
+            </label>
+            <input
+              id="dateToInput"
+              className="input"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
           </div>
         </div>
       </div>
@@ -293,7 +339,10 @@ export default function SearchPage() {
               draggable
               onDragStart={(e) => onDragStartProperty(e, p)}
             >
-              <Link to={`/property/${p.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              <Link
+                to={`/property/${p.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
                 <div className="card cardHover">
                   <img
                     className="cardImg"
@@ -302,7 +351,9 @@ export default function SearchPage() {
                     onError={(e) => (e.currentTarget.src = "/images/placeholder.jpg")}
                   />
                   <div className="cardBody">
-                    <div className="cardTitle">{p.type} • {p.bedrooms} bed</div>
+                    <div className="cardTitle">
+                      {p.type} • {p.bedrooms} bed
+                    </div>
                     <div className="price">£{Number(p.price).toLocaleString()}</div>
                     <div className="muted">{p.location}</div>
                     <div className="muted small">
@@ -326,40 +377,36 @@ export default function SearchPage() {
         </div>
 
         {/* Favourites */}
-        <div className="panel panelPad sticky">
+        <div
+          className="panel panelPad sticky"
+          onDrop={onDropToFavourites}
+          onDragOver={onDragOverFavourites}
+        >
           <div className="favHeader">
             <h3 style={{ margin: 0 }}>Favourites ({favourites.length})</h3>
-            <button className="btn" type="button" onClick={clearFavourites} disabled={favourites.length === 0}>
+            <button
+              className="btn"
+              type="button"
+              onClick={clearFavourites}
+              disabled={favourites.length === 0}
+            >
               Clear
             </button>
           </div>
 
-          {/* ADD drop zone */}
-          <div className="dropZone" onDragOver={onDragOver} onDrop={onDropToFavourites}>
-            <strong>Drop here to add ✅</strong>
+          <div className="dropZone">
+            <strong>Drop here to add </strong>
             <div className="muted small">Drag a property card from the left into this box.</div>
           </div>
 
-          {/* REMOVE drop zone */}
-          <div className="removeZone" onDragOver={onDragOver} onDrop={onDropToRemove}>
-            <strong>Drop here to remove 🗑️</strong>
-            <div className="muted small">Drag a favourite item into this box to remove it.</div>
-          </div>
-
           {favourites.length === 0 ? (
-            <p className="muted" style={{ marginTop: 12 }}>
-              No favourites yet. Click ☆ Favourite or drag a card to add.
+            <p className="muted" style={{ marginTop: 10 }}>
+              No favourites yet. Click ☆ Favourite or drag a card here.
             </p>
           ) : (
             <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
               {favourites.map((f) => (
-                <div
-                  key={f.id}
-                  className="favItem"
-                  draggable
-                  onDragStart={(e) => onDragStartFavourite(e, f)}
-                  title="Drag me to the remove box to delete"
-                >
+                <div key={f.id} className="favItem">
                   <img
                     className="favThumb"
                     src={"/" + (f.picture || "images/placeholder.jpg")}
@@ -368,11 +415,15 @@ export default function SearchPage() {
                   />
 
                   <div>
-                    <div style={{ fontWeight: 900 }}>{f.type} • {f.bedrooms} bed</div>
+                    <div style={{ fontWeight: 900 }}>
+                      {f.type} • {f.bedrooms} bed
+                    </div>
                     <div className="muted">£{Number(f.price).toLocaleString()}</div>
 
                     <div style={{ display: "flex", gap: 10, marginTop: 8, alignItems: "center" }}>
-                      <Link className="link" to={`/property/${f.id}`}>View</Link>
+                      <Link className="link" to={`/property/${f.id}`}>
+                        View
+                      </Link>
                       <button className="btn" type="button" onClick={() => removeFavourite(f.id)}>
                         Remove
                       </button>

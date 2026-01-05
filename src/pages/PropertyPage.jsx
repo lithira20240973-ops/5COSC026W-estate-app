@@ -6,6 +6,10 @@ export default function PropertyPage() {
   const { id } = useParams();
   const properties = propertiesData.properties;
 
+  // GitHub Pages base path helper 
+  const withBase = (path) =>
+    `${import.meta.env.BASE_URL}${String(path || "").replace(/^\/+/, "")}`;
+
   const property = useMemo(
     () => properties.find((p) => String(p.id) === String(id)),
     [properties, id]
@@ -58,10 +62,10 @@ export default function PropertyPage() {
           <div className="detailsMainImgWrap">
             <img
               className="detailsMainImg"
-              src={"/" + activeImage}
+              src={withBase(activeImage)}
               alt="Property"
               onError={(e) => {
-                e.currentTarget.src = "/images/placeholder.jpg";
+                e.currentTarget.src = withBase("images/placeholder.jpg");
               }}
             />
           </div>
@@ -76,10 +80,10 @@ export default function PropertyPage() {
               >
                 <img
                   className="thumbImg"
-                  src={"/" + img}
+                  src={withBase(img)}
                   alt="Thumbnail"
                   onError={(e) => {
-                    e.currentTarget.src = "/images/placeholder.jpg";
+                    e.currentTarget.src = withBase("images/placeholder.jpg");
                   }}
                 />
               </button>
@@ -151,14 +155,12 @@ export default function PropertyPage() {
                 <h3 style={{ marginTop: 0 }}>Floorplan</h3>
                 <img
                   className="floorplanImg"
-                  src={"/" + (property.floorplan || "images/placeholder.jpg")}
+                  src={withBase(property.floorplan || "images/placeholder.jpg")}
                   alt="Floorplan"
                   onError={(e) => {
-                    e.currentTarget.src = "/images/placeholder.jpg";
+                    e.currentTarget.src = withBase("images/placeholder.jpg");
                   }}
                 />
-                <p className="muted small" style={{ marginBottom: 0 }}>
-                </p>
               </>
             )}
 
@@ -182,7 +184,6 @@ export default function PropertyPage() {
                 </a>
 
                 <p className="muted small" style={{ marginTop: 12 }}>
-                  No API key needed (OK for CW).
                 </p>
               </>
             )}

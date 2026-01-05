@@ -2,15 +2,18 @@
   "name": "estate-app",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://lithira20240973-ops.github.io/5COSC026W-estate-app",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "test": "jest",
+  "test:watch": "jest --watch",
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist"
+},
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -30,6 +33,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.2.0",

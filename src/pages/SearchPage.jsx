@@ -2,6 +2,26 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import propertiesData from "../data/properties.json";
 
+const getBasePrefix = () => {
+  if (typeof window === "undefined") return "/";
+
+  const parts = window.location.pathname.split("/"); // ["", "repo", "property", "prop1"]
+  const first = parts[1] || "";
+
+  // On GitHub Pages the site lives under /<repo>/
+  if (window.location.hostname.includes("github.io") && first) {
+    return `/${first}/`;
+  }
+
+  // localhost / normal hosting
+  return "/";
+};
+
+const BASE_PREFIX = getBasePrefix();
+
+const withBase = (path) =>
+  `${BASE_PREFIX}${String(path || "").replace(/^\/+/, "")}`;
+
 export default function SearchPage() {
   const properties = propertiesData.properties;
 
@@ -57,7 +77,7 @@ export default function SearchPage() {
     });
   };
 
-  // ----- FAVOURITES (persisted) -----
+  // ----- FAVOURITES  -----
   const FAV_KEY = "favourites";
 
   const loadFavs = () => {
@@ -80,6 +100,7 @@ export default function SearchPage() {
   const isFavourited = (id) => favourites.some((f) => f.id === id);
 
   const addFavourite = (property) => {
+    if (!property) return;
     if (isFavourited(property.id)) return;
     saveFavs([property, ...favourites]);
   };
@@ -90,15 +111,20 @@ export default function SearchPage() {
 
   const clearFavourites = () => saveFavs([]);
 
-  // ----- DRAG & DROP (ADD to favourites) -----
+  // ----- DRAG & DROP -----
   const onDragStartProperty = (e, property) => {
-    e.dataTransfer.setData("text/plain", property.id);
+    e.dataTransfer.setData("text/plain", `add:${property.id}`);
     e.dataTransfer.effectAllowed = "copy";
   };
 
   const onDropToFavourites = (e) => {
     e.preventDefault();
-    const id = e.dataTransfer.getData("text/plain");
+    const payload = e.dataTransfer.getData("text/plain");
+    const [mode, id] = String(payload || "").split(":");
+
+    // Only accept items from the left card list
+    if (mode !== "add") return;
+
     const prop = properties.find((p) => p.id === id);
     if (prop) addFavourite(prop);
   };
@@ -106,6 +132,28 @@ export default function SearchPage() {
   const onDragOverFavourites = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
+  };
+
+  // DRAG FROM FAVOURITES → REMOVE ZONE
+  const onDragStartFavourite = (e, fav) => {
+    e.dataTransfer.setData("text/plain", `remove:${fav.id}`);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const onDropToRemoveZone = (e) => {
+    e.preventDefault();
+    const payload = e.dataTransfer.getData("text/plain");
+    const [mode, id] = String(payload || "").split(":");
+
+    // Only accept items dragged from favourites
+    if (mode !== "remove") return;
+
+    removeFavourite(id);
+  };
+
+  const onDragOverRemoveZone = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
   };
 
   // Convert month name to number
@@ -127,7 +175,6 @@ export default function SearchPage() {
     return months[String(m || "").toLowerCase()] || 0;
   };
 
-  // Convert property added date to ISO (YYYY-MM-DD)
   const propertyAddedAsISO = (p) => {
     const y = Number(p?.added?.year);
     const m = monthToNumber(p?.added?.month);
@@ -136,7 +183,7 @@ export default function SearchPage() {
     return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   };
 
-  //  FILTERING USES APPLIED FILTERS (not pending)
+  // FILTERING USES APPLIED FILTERS
   const filtered = useMemo(() => {
     const {
       type: aType,
@@ -149,20 +196,16 @@ export default function SearchPage() {
     } = appliedFilters;
 
     return properties.filter((p) => {
-      // Type
       if (aType !== "Any" && p.type !== aType) return false;
 
-      // Price
       const minP = aMinPrice === "" ? null : Number(aMinPrice);
       const maxP = aMaxPrice === "" ? null : Number(aMaxPrice);
       if (minP !== null && Number(p.price) < minP) return false;
       if (maxP !== null && Number(p.price) > maxP) return false;
 
-      // Bedrooms
       const beds = aMinBeds === "" ? null : Number(aMinBeds);
       if (beds !== null && Number(p.bedrooms) < beds) return false;
 
-      // Postcode area
       const pc = aPostcodeArea.trim().toUpperCase();
       if (pc) {
         const loc = String(p.location || "").toUpperCase();
@@ -171,10 +214,8 @@ export default function SearchPage() {
         if (!outward.startsWith(pc)) return false;
       }
 
-      // Date range
       const from = aDateFrom || null;
       const to = aDateTo || null;
-
       if (from || to) {
         const addedISO = propertyAddedAsISO(p);
         if (!addedISO) return false;
@@ -191,20 +232,19 @@ export default function SearchPage() {
       {/* Top bar */}
       <div className="topbar">
         <div className="brand">RentNest</div>
-
         <div className="topbarRight">
           <div className="pill">Results: {filtered.length}</div>
           <div className="pill">Favourites: {favourites.length}</div>
         </div>
       </div>
 
-      {/* HERO CARD (new look for heading area) */}
+      {/* HERO CARD */}
       <div className="heroCard">
         <div>
           <h1 className="heroTitle">Find your next home</h1>
           <p className="heroSub">
-            Set your filters, then press <strong>Apply Filters</strong>. You can
-            drag properties into favourites.
+            Set your filters, then press <strong>Apply Filters</strong>. Drag cards to add.
+            Drag favourites to the remove box to delete.
           </p>
         </div>
 
@@ -221,7 +261,6 @@ export default function SearchPage() {
       {/* Filters panel */}
       <div className="panel panelPad">
         <div className="filters">
-          {/* Property type */}
           <div className="field col3">
             <label className="label" htmlFor="typeSelect">
               Property type
@@ -238,7 +277,6 @@ export default function SearchPage() {
             </select>
           </div>
 
-          {/* Postcode area */}
           <div className="field col3">
             <label className="label" htmlFor="postcodeInput">
               Postcode area
@@ -253,7 +291,6 @@ export default function SearchPage() {
             />
           </div>
 
-          {/* Min price */}
           <div className="field col3">
             <label className="label" htmlFor="minPriceInput">
               Min price
@@ -268,7 +305,6 @@ export default function SearchPage() {
             />
           </div>
 
-          {/* Max price */}
           <div className="field col3">
             <label className="label" htmlFor="maxPriceInput">
               Max price
@@ -283,7 +319,6 @@ export default function SearchPage() {
             />
           </div>
 
-          {/* Min beds */}
           <div className="field col3">
             <label className="label" htmlFor="minBedsInput">
               Min beds
@@ -298,7 +333,6 @@ export default function SearchPage() {
             />
           </div>
 
-          {/* Date from */}
           <div className="field col3">
             <label className="label" htmlFor="dateFromInput">
               Date from
@@ -312,7 +346,6 @@ export default function SearchPage() {
             />
           </div>
 
-          {/* Date to */}
           <div className="field col3">
             <label className="label" htmlFor="dateToInput">
               Date to
@@ -339,16 +372,16 @@ export default function SearchPage() {
               draggable
               onDragStart={(e) => onDragStartProperty(e, p)}
             >
-              <Link
-                to={`/property/${p.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
+              <Link to={`/property/${p.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="card cardHover">
                   <img
                     className="cardImg"
-                    src={"/" + (p.picture || "images/placeholder.jpg")}
+                    src={withBase(p.picture || "images/placeholder.jpg")}
                     alt={p.type}
-                    onError={(e) => (e.currentTarget.src = "/images/placeholder.jpg")}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = withBase("images/placeholder.jpg");
+                    }}
                   />
                   <div className="cardBody">
                     <div className="cardTitle">
@@ -376,42 +409,49 @@ export default function SearchPage() {
           ))}
         </div>
 
-        {/* Favourites */}
-        <div
-          className="panel panelPad sticky"
-          onDrop={onDropToFavourites}
-          onDragOver={onDragOverFavourites}
-        >
+        {/* Favourites panel */}
+        <div className="panel panelPad sticky">
           <div className="favHeader">
             <h3 style={{ margin: 0 }}>Favourites ({favourites.length})</h3>
-            <button
-              className="btn"
-              type="button"
-              onClick={clearFavourites}
-              disabled={favourites.length === 0}
-            >
+            <button className="btn" type="button" onClick={clearFavourites} disabled={favourites.length === 0}>
               Clear
             </button>
           </div>
 
-          <div className="dropZone">
+          {/* DROP TO ADD */}
+          <div className="dropZone" onDrop={onDropToFavourites} onDragOver={onDragOverFavourites}>
             <strong>Drop here to add </strong>
             <div className="muted small">Drag a property card from the left into this box.</div>
           </div>
 
+          {/* DROP TO REMOVE */}
+          <div className="removeZone" onDrop={onDropToRemoveZone} onDragOver={onDragOverRemoveZone}>
+            <strong>Drop here to remove </strong>
+            <div className="muted small">Drag a favourite item into this box to remove it.</div>
+          </div>
+
           {favourites.length === 0 ? (
-            <p className="muted" style={{ marginTop: 10 }}>
-              No favourites yet. Click ☆ Favourite or drag a card here.
+            <p className="muted" style={{ marginTop: 12 }}>
+              No favourites yet. Click ☆ Favourite or drag a card to add.
             </p>
           ) : (
             <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
               {favourites.map((f) => (
-                <div key={f.id} className="favItem">
+                <div
+                  key={f.id}
+                  className="favItem"
+                  draggable
+                  onDragStart={(e) => onDragStartFavourite(e, f)}
+                  title="Drag me to the remove box"
+                >
                   <img
                     className="favThumb"
-                    src={"/" + (f.picture || "images/placeholder.jpg")}
+                    src={withBase(f.picture || "images/placeholder.jpg")}
                     alt={f.type}
-                    onError={(e) => (e.currentTarget.src = "/images/placeholder.jpg")}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = withBase("images/placeholder.jpg");
+                    }}
                   />
 
                   <div>

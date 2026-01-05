@@ -231,7 +231,7 @@ export default function SearchPage() {
     <div className="page">
       {/* Top bar */}
       <div className="topbar">
-        <div className="brand">RentNest</div>
+        <div className="brand">SkyNest Rentals</div>
         <div className="topbarRight">
           <div className="pill">Results: {filtered.length}</div>
           <div className="pill">Favourites: {favourites.length}</div>

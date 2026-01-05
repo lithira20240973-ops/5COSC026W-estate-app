@@ -27,7 +27,7 @@ test("shows results count pill", () => {
   expect(screen.getByText(new RegExp(`Results:\\s*${total}`, "i"))).toBeInTheDocument();
 });
 
-/* ✅ TEST 3: filter by type using Apply Filters button */
+/* TEST 3: filter by type using Apply Filters button */
 test("filters by property type (House) after clicking Apply Filters", async () => {
   const user = userEvent.setup();
   renderPage();
@@ -43,7 +43,7 @@ test("filters by property type (House) after clicking Apply Filters", async () =
   expect(screen.getByText(new RegExp(`Results:\\s*${expected}`, "i"))).toBeInTheDocument();
 });
 
-/* ✅ TEST 4: filter by min beds using label */
+/* TEST 4: filter by min beds using label */
 test("filters by min beds after clicking Apply Filters", async () => {
   const user = userEvent.setup();
   renderPage();
@@ -58,7 +58,7 @@ test("filters by min beds after clicking Apply Filters", async () => {
   expect(screen.getByText(new RegExp(`Results:\\s*${expected}`, "i"))).toBeInTheDocument();
 });
 
-/* ✅ TEST 5: add to favourites via button */
+/* TEST 5: add to favourites via button */
 test("adds a property to favourites and updates favourites count", async () => {
   const user = userEvent.setup();
   renderPage();
